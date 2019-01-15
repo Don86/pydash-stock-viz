@@ -15,13 +15,8 @@ from flask import send_from_directory
 import os
 
 
-app = dash.Dash()
-server = app.server
-app.config.suppress_callback_exceptions = True
-app.css.config.serve_locally = True
-app.scripts.config.serve_locally = True
+app = dash.Dash(__name__)
 
-# CSS Not working!
 
 app.layout = html.Div([
 	# link to css
@@ -31,7 +26,10 @@ app.layout = html.Div([
     ),
 
 	# Title
-	html.H1("Index Viz", id="my-title"),
+	html.Div(
+		className="app-header",
+		children=[html.Div("Title", className="app-header-title")]
+		),
 	
 	# PyDash logo at top right
 	html.Img(src="https://s3-us-west-1.amazonaws.com/plotly-tutorials/logo/new-branding/dash-logo-by-plotly-stripe.png",
@@ -88,10 +86,10 @@ def update_graph(selected_dropdown_value):
 	"layout":{"title":selected_dropdown_value}}
 
 
-@app.server.route('/static/<path:path>')
-def static_file(path):
-    static_folder = os.path.join(os.getcwd(), 'static')
-    return send_from_directory(static_folder, path)
+#@app.server.route('/static/<path>')
+#def static_file(path):
+#    static_folder = os.path.join(os.getcwd(), 'static')
+#    return send_from_directory(static_folder, path)
 
 
 if __name__ == "__main__":

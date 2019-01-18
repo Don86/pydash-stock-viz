@@ -43,33 +43,32 @@ app.layout = html.Div([
 		value="^GSPC"),
 
 	# ========== Date pickers: to and from ==========
-	dcc.DatePickerSingle(
-		id="from-date",
+	#dcc.DatePickerSingle(
+	#	id="to-date",
+	#	min_date_allowed=dt(1997, 1, 1),
+	#	max_date_allowed=dt.today(),
+	#	month_format='MMM Do, YY',
+	#	placeholder='MMM Do, YY',
+	#	date=dt.today()
+	#	),
+
+	dcc.DatePickerRange(
+		id="date-picker-range",
 		min_date_allowed=dt(1997, 1, 1),
-		max_date_allowed=dt.now(),
-		month_format='MMM Do, YY',
-		placeholder='MMM Do, YY',
-		date=dt.now() - timedelta(days=7)
+		#start_date_placeholder_text=dt.today(),
+		#end_date_placeholder_text=dt.today(),
+		start_date=dt.today(),
+		end_date=dt.today()
 		),
 
-	dcc.DatePickerSingle(
-		id="to-date",
-		min_date_allowed=dt(1997, 1, 1),
-		max_date_allowed=dt.now(),
-		month_format='MMM Do, YY',
-		placeholder='MMM Do, YY',
-		date=dt.now()
-		),
-
-	#html.Div(id='my-graph')
 	dcc.Graph(id="my-graph")
 	])
 
 
 @app.callback(Output("my-graph", "figure"), 
 	[Input("my-dropdown", "value"), 
-	Input("from-date", "date"),
-	Input("to-date", "date"),
+	Input("date-picker-range", "start_date"),
+	Input("date-picker-range", "end_date"),
 	])
 def update_graph(selected_dropdown_value, from_date, to_date):
 	"""Updates graph according to selected ticker symbol.
@@ -84,7 +83,8 @@ def update_graph(selected_dropdown_value, from_date, to_date):
 	# Compute column of smoothed values
 	#d1 = dt.strptime(from_date, "%Y-%m-%d")
 	#d2 = dt.strptime(to_date, "%Y-%m-%d")
-	window = min((to_date - from_date).days, 61)
+	#window = min((dt.strptime(to_date) - dt.strptime(from_date)).days, 61)
+	window=61
 	df["smoothed"] = savgol_filter(list(df["Close"]), window, 3)
 
 	return {"data":[{"x": df.index, "y": df.Close, "type": "markers", "name": "close_val", 
@@ -93,12 +93,6 @@ def update_graph(selected_dropdown_value, from_date, to_date):
         color = ('rgb(205, 12, 24)'),
         width = 0.75)}], 
 	"layout":{"title":selected_dropdown_value}}
-
-
-#@app.server.route('/static/<path>')
-#def static_file(path):
-#    static_folder = os.path.join(os.getcwd(), 'static')
-#    return send_from_directory(static_folder, path)
 
 
 if __name__ == "__main__":
